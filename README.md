@@ -23,53 +23,46 @@ Currently, two official plugins are available:
 
 1. In Development Phase
 
-- 🟢 Initial Setup
-  When the project is initialized and the Vite dev server is started:
+- Initial Setup
 
-The Vite dev server runs on localhost:port and establishes a connection with the browser.
+  > When the project is initialized and the Vite dev server is started:
 
-The browser makes a request to the root HTML file (index.html).
+  > The Vite dev server runs on localhost:port and establishes a connection with the browser.
 
-Vite serves the index.html, which contains:
+  > The browser makes a request to the root HTML file (index.html).
 
-A <div id="root"></div> element
+  > Vite serves the index.html, which contains:
 
-A <script type="module" src="/src/main.tsx"> tag
+  > <div id="root"></div> element
 
-📦 Module Loading Begins
-The browser detects the main.tsx module and requests it from Vite.
+  > <script type="module" src="/src/main.tsx"> tag
 
-Vite uses esbuild to transpile main.tsx to JavaScript and sends the result to the browser.
+- Module Loading Begins
 
-The browser executes ReactDOM.createRoot(document.getElementById("root")).render(<App />) and creates a real DOM tree with the #root element.
+  > The browser detects the main.tsx module and requests it from Vite.
+  > Vite uses esbuild to transpile main.tsx to JavaScript and sends the result to the browser.
+  > The browser executes ReactDOM.createRoot(document.getElementById("root")).render(<App />) and creates a real DOM tree with the #root element.
+  > The browser sees the App.tsx import inside main.tsx and requests it.
+  > Vite transpiles App.tsx and sends the result to the browser.
 
-The browser sees the App.tsx import inside main.tsx and requests it.
+- Import Handling (Code Splitting vs No Code Splitting)
 
-Vite transpiles App.tsx and sends the result to the browser.
+> Inside App.tsx, there are multiple module imports.
+> If code splitting is not used:
+> The browser eagerly requests all imported modules in parallel.
+> Vite transpiles all requested modules concurrently.
+> Vite responds with each transpiled module as soon as it's ready, based on the request pathname.
+> If code splitting is used:
+> The browser only requests modules relevant to the current route/pathname.
+> Vite transpiles and serves only those requested modules.
 
-🧩 Import Handling (Code Splitting vs No Code Splitting)
-Inside App.tsx, there are multiple module imports.
+- Module Caching
 
-If code splitting is not used:
+  > Vite uses internal caching:
 
-The browser eagerly requests all imported modules in parallel.
+  > If a transpiled module isn't immediately used (due to route mismatch), it’s cached.
 
-Vite transpiles all requested modules concurrently.
-
-Vite responds with each transpiled module as soon as it's ready, based on the request pathname.
-
-If code splitting is used:
-
-The browser only requests modules relevant to the current route/pathname.
-
-Vite transpiles and serves only those requested modules.
-
-🧠 Module Caching
-Vite uses internal caching:
-
-If a transpiled module isn't immediately used (due to route mismatch), it’s cached.
-
-When a route matches later, Vite serves it from the cache without retranspiling.
+  > When a route matches later, Vite serves it from the cache without retranspiling.
 
 🔁 Rendering and Reconciliation
 Once JS modules are loaded:
