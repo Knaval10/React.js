@@ -40,21 +40,30 @@ Currently, two official plugins are available:
 - Module Loading Begins
 
   > The browser detects the main.tsx module and requests it from Vite.
+
   > Vite uses esbuild to transpile main.tsx to JavaScript and sends the result to the browser.
+
   > The browser executes ReactDOM.createRoot(document.getElementById("root")).render(<App />) and creates a real DOM tree with the #root element.
+
   > The browser sees the App.tsx import inside main.tsx and requests it.
+
   > Vite transpiles App.tsx and sends the result to the browser.
 
 - Import Handling (Code Splitting vs No Code Splitting)
 
-> Inside App.tsx, there are multiple module imports.
-> If code splitting is not used:
-> The browser eagerly requests all imported modules in parallel.
-> Vite transpiles all requested modules concurrently.
-> Vite responds with each transpiled module as soon as it's ready, based on the request pathname.
-> If code splitting is used:
-> The browser only requests modules relevant to the current route/pathname.
-> Vite transpiles and serves only those requested modules.
+  > Inside App.tsx, there are multiple module imports.
+
+  > If code splitting is not used:
+  > . The browser eagerly requests all imported modules in parallel.
+
+  > . Vite transpiles all requested modules concurrently.
+
+  > . Vite responds with each transpiled module as soon as it's ready, based on the request pathname.
+
+  > . If code splitting is used:
+  > . The browser only requests modules relevant to the current route/pathname.
+
+  > . Vite transpiles and serves only those requested modules.
 
 - Module Caching
 
@@ -64,43 +73,43 @@ Currently, two official plugins are available:
 
   > When a route matches later, Vite serves it from the cache without retranspiling.
 
-🔁 Rendering and Reconciliation
-Once JS modules are loaded:
+- Rendering and Reconciliation
 
-React builds the virtual DOM (vDOM) based on the current pathname using React Router.
+  > Once JS modules are loaded:
+  > . React builds the virtual DOM (vDOM) based on the current pathname using React Router.
 
-For the first load, React reconciles the vDOM with the existing real DOM (i.e., the #root div).
+  > . For the first load, React reconciles the vDOM with the existing real DOM (i.e., the #root div).
 
-The DOM is updated to reflect the initial UI.
+  > . The DOM is updated to reflect the initial UI.
 
-🔄 When Code Updates (HMR)
-When code changes during development:
+- When Code Updates (HMR)
 
-Vite only transpiles the changed module.
+  > When code changes during development:
+  > . Vite only transpiles the changed module.
 
-The transpiled JS is pushed to the browser using Hot Module Replacement (HMR).
+  > . The transpiled JS is pushed to the browser using Hot Module Replacement (HMR).
 
-React’s HMR runtime swaps the old module with the new one in memory.
+  > . React’s HMR runtime swaps the old module with the new one in memory.
 
-React re-renders and reconciles, and the DOM is updated accordingly.
+  > . React re-renders and reconciles, and the DOM is updated accordingly.
 
-📥 When State Updates
-When a state change occurs:
+- When State Updates
 
-React creates a new vDOM and diffs it with the previous one.
+  > When a state change occurs:
+  > . React creates a new vDOM and diffs it with the previous one.
 
-Only the changed parts are applied to the real DOM (UI is updated efficiently).
+  > . Only the changed parts are applied to the real DOM (UI is updated efficiently).
 
-🔁 When Pathname Changes
-On route (pathname) change:
+- When Pathname Changes
 
-The old component is removed from the DOM.
+  > On route (pathname) change:
+  > . The old component is removed from the DOM.
 
-New modules are requested (depending on whether they are already cached or not).
+  > . New modules are requested (depending on whether they are already cached or not).
 
-Vite transpiles and feeds the modules (if needed).
+  > . Vite transpiles and feeds the modules (if needed).
 
-React creates a new vDOM and reconciles with the real DOM to update the UI.
+  > . React creates a new vDOM and reconciles with the real DOM to update the UI.
 
 ┌────────────────────────┐
 │ Project Initialization │
