@@ -111,68 +111,68 @@ Currently, two official plugins are available:
 
   > . React creates a new vDOM and reconciles with the real DOM to update the UI.
 
-┌────────────────────────┐
-│ Project Initialization │
-└────────────┬───────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ Vite Dev Server starts (localhost:port) │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ Browser requests index.html │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ index.html served → main.tsx script found │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ main.tsx requested → Vite transpiles it │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ ReactDOM.createRoot().render(<App />) │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ App.tsx requested → Vite transpiles it │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ App.tsx imports multiple modules │
-└────────────┬────────────────────────────────┘
-↓
-┌────┴────────────────────────────────────────────────────────────────┐
-│ If code splitting is NOT used: │
-│ - Browser requests all modules in parallel │
-│ - Vite transpiles concurrently and serves on-demand │
-└────────────────────────────────────────────────────────────────────┘
-┌────┴────────────────────────────────────────────────────────────────┐
-│ If code splitting is used: │
-│ - Browser only requests route-specific module │
-│ - Vite transpiles & serves only what's needed │
-└────────────────────────────────────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ Browser loads JS modules → React builds vDOM│
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ React reconciles vDOM with real DOM │
-└────────────┬────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────┐
-│ UI is rendered │
-└────────────┬────────────────────────────────┘
-↓
-┌────────────┐ ┌──────────────┐ ┌─────────────────┐
-│ Code Change│ │ State Change │ │ Pathname Change │
-├────────────┤ ├──────────────┤ ├─────────────────┤
-│ Vite HMR │ │ New vDOM │ │ Load new module │
-│ Transpiles │ │ Diff & patch │ │ Transpile/cache │
-│ Hot Reload │ │ UI updates │ │ New vDOM → UI │
-└────────────┘ └──────────────┘ └─────────────────┘
+                                                      ┌────────────────────────┐
+                                                      │ Project Initialization │
+                                                      └────────────┬───────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ Vite Dev Server starts (localhost:port)     │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ Browser requests index.html                 │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ index.html served → main.tsx script found   │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ main.tsx requested → Vite transpiles it     │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ ReactDOM.createRoot().render(<App />)       │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ App.tsx requested → Vite transpiles it │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ App.tsx imports multiple modules            │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌────────────────────────────────────────────────────────────────────┐
+                                                      │ If code splitting is NOT used:                                     │
+                                                      │ - Browser requests all modules in parallel                         │
+                                                      │ - Vite transpiles concurrently and serves on-demand                │
+                                                      └────────────────────────────────────────────────────────────────────┘
+                                                      ┌────┴────────────────────────────────────────────────────────────────┐
+                                                      │ If code splitting is used:                                          │
+                                                      │ - Browser only requests route-specific module                       │
+                                                      │ - Vite transpiles & serves only what's needed                       │
+                                                      └────────────────────────────────────────────────────────────────────-┘
+                                                                    ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ Browser loads JS modules → React builds vDOM│
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ React reconciles vDOM with real DOM         │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌─────────────────────────────────────────────┐
+                                                      │ UI is rendered                              │
+                                                      └────────────┬────────────────────────────────┘
+                                                                   ↓
+                                                      ┌────────────┐ ┌──────────────┐ ┌─────────────────┐
+                                                      │ Code Change│ │ State Change │ │ Pathname Change │
+                                                      ├────────────┤ ├──────────────┤ ├─────────────────┤
+                                                      │ Vite HMR   │ │ New vDOM     │ │ Load new module │
+                                                      │ Transpiles │ │ Diff & patch │ │ Transpile/cache │
+                                                      │ Hot Reload │ │ UI updates   │ │ New vDOM → UI   │
+                                                      └────────────┘ └──────────────┘ └─────────────────┘
 
 ## Expanding the ESLint configuration
 
