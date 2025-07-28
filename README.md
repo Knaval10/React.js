@@ -32,7 +32,7 @@ Currently, two official plugins are available:
 
     - Vite serves the index.html, which contains:
 
-      - <div id="root"></div> element
+      - <div id="root"></div> root element
 
       - <script type="module" src="/src/main.tsx"></script> # type="module" signifies JS module as ESModule
 
