@@ -27,6 +27,7 @@ Currently, two official plugins are available:
 
   - When the project is initialized and the Vite dev server is started:
 
+<<<<<<< HEAD
     - The Vite dev server runs on localhost:port and establishes a connection with the browser.
 
     - The browser makes a request to the root HTML file (index.html).
@@ -36,6 +37,17 @@ Currently, two official plugins are available:
     - <div id="root"></div> element
 
     - <script type="module" src="/src/main.tsx"> tag
+=======
+    > The Vite dev server runs on localhost:port and establishes a connection with the browser.
+
+    > The browser makes a request to the root HTML file (index.html).
+
+    > Vite serves the index.html, which contains:
+
+    > <div id="root"></div> element
+
+    > <script type="module" src="/src/main.tsx"> tag
+>>>>>>> 0be159ffcc1fcb2ccfbbafb60ee5020d57913eba
 
 - Module Loading Begins
 
