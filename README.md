@@ -17,7 +17,6 @@ Currently, two official plugins are available:
 
 - React is a powerful tool to develop single page application with flexibility in creating highly responsive user interfaces ensuring smooth user experience.
 - It uses the concept of Virtual DOM (a copy of the real DOM) and does UI updates and manipulations with vDOM without direct involvement of the real DOM.
--
 
 ## How react works internally?
 
@@ -33,17 +32,19 @@ Currently, two official plugins are available:
 
     - Vite serves the index.html, which contains:
 
-    - <div id="root"></div> element
+      - <div id="root"></div> element
 
-    - <script type="module" src="/src/main.tsx"> tag
+      - <script type="module" src="/src/main.tsx"></script> # type="module" signifies JS module as ESModule
 
-- Module Loading Begins
+    - Borwser creates real DOM of the empty root element.
+
+- Module Loading Begins:
 
   - The browser detects the main.tsx module and requests it from Vite.
 
   - Vite uses esbuild to transpile main.tsx to JavaScript and sends the result to the browser.
 
-  - The browser executes ReactDOM.createRoot(document.getElementById("root")).render(<App />) and creates a real DOM tree with the #root element.
+  - Browser stores the ESModule in its cache
 
   - The browser sees the App.tsx import inside main.tsx and requests it.
 
@@ -54,33 +55,36 @@ Currently, two official plugins are available:
   - Inside App.tsx, there are multiple module imports.
 
   - If code splitting is not used:
-  - The browser eagerly requests all imported modules in parallel.
 
-  - Vite transpiles all requested modules concurrently.
+    - The browser eagerly requests all imported modules in parallel.
 
-  - Vite responds with each transpiled module as soon as it's ready, based on the request pathname.
+    - Vite transpiles all requested modules concurrently. # The order of transpilation depends on the time required to request
+
+    - Vite responds with each transpiled module as soon as it's ready. # Transpilation completion order depends on the size of the module
 
   - If code splitting is used:
-  - The browser only requests modules relevant to the current route/pathname.
 
-  - Vite transpiles and serves only those requested modules.
+    - The browser only requests modules relevant to the current route/pathname.
+
+    - Vite transpiles and serves only those requested modules.
 
 - Module Caching
 
   - Vite uses internal caching:
 
-  - If a transpiled module isn't immediately used (due to route mismatch), it’s cached.
+    - If a transpiled module isn't immediately used (due to route mismatch), it’s cached.
 
-  - When a route matches later, Vite serves it from the cache without retranspiling.
+    - When a route matches later, Vite serves it from the cache without retranspiling.
 
 - Rendering and Reconciliation
 
   - Once JS modules are loaded:
-  - React builds the virtual DOM (vDOM) based on the current pathname using React Router.
 
-  - For the first load, React reconciles the vDOM with the existing real DOM (i.e., the #root div).
+    - React mounts the first component that is React builds the virtual DOM (vDOM) of a component based on the current pathname using React Router. # ReactDOM.createRoot(document.getElementById("root")).render(<App />) creates vDOM. # ReactDOM contains all the rendering and routing functions. # createRoot(document.getElementByID("root)) creates root element for each vDOM. render(<App/>) creates the vDOM of the components imported inside App.tsx based on the routes
 
-  - The DOM is updated to reflect the initial UI.
+    - React converts the first vDOM into its corresponding real DOM because there is no previous vDOM to reconcile and no meaningful real DOM present in the browser.
+
+    - The real DOM is updated to reflect the initial UI.
 
 - When Code Updates (HMR)
 
@@ -90,9 +94,9 @@ Currently, two official plugins are available:
 
     - The transpiled JS is pushed to the browser using Hot Module Replacement (HMR).
 
-    - React’s HMR runtime swaps the old module with the new one in memory.
+    - Browser’s HMR runtime swaps the old module with the new one in the cache memory. # React generates the HMR runtime during initial rendering # The HMR runtime continuously tracks the module change and does HMR
 
-    - React re-renders and reconciles, and the DOM is updated accordingly.
+    - React re-renders and reconciles, and the DOM is updated accordingly to reflect the changes as UI on the browser.
 
 - When State Updates
 
@@ -106,76 +110,108 @@ Currently, two official plugins are available:
 
   - On route (pathname) change:
 
-    - The old component is removed from the DOM.
+        - The old component is removed from the DOM. #Unmounting
 
-    - New modules are requested (depending on whether they are already cached or not).
+        - New modules are requested (depending on whether they are already cached or not).
 
-    - Vite transpiles and feeds the modules (if needed).
+        - Vite transpiles and feeds the modules (if needed). #For Code spliting #Dynamically imported modules
 
-    - React creates a new vDOM and reconciles with the real DOM to update the UI.
+        - React creates a new vDOM and reconciles with the real DOM to update the UI.
 
-                                                   ┌────────────────────────┐
-                                                   │ Project Initialization │
-                                                   └────────────┬───────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ Vite Dev Server starts (localhost:port)     │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ Browser requests index.html                 │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ index.html served → main.tsx script found   │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ main.tsx requested → Vite transpiles it     │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ ReactDOM.createRoot().render(<App />)       │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ App.tsx requested → Vite transpiles it │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ App.tsx imports multiple modules            │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌────────────────────────────────────────────────────────────────────┐
-                                                   │ If code splitting is NOT used:                                     │
-                                                   │ - Browser requests all modules in parallel                         │
-                                                   │ - Vite transpiles concurrently and serves on-demand                │
-                                                   └────────────────────────────────────────────────────────────────────┘
-                                                   ┌────┴────────────────────────────────────────────────────────────────┐
-                                                   │ If code splitting is used:                                          │
-                                                   │ - Browser only requests route-specific module                       │
-                                                   │ - Vite transpiles & serves only what's needed                       │
-                                                   └────────────────────────────────────────────────────────────────────-┘
-                                                                 ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ Browser loads JS modules → React builds vDOM│
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ React reconciles vDOM with real DOM         │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌─────────────────────────────────────────────┐
-                                                   │ UI is rendered                              │
-                                                   └────────────┬────────────────────────────────┘
-                                                                ↓
-                                                   ┌────────────┐ ┌──────────────┐ ┌─────────────────┐
-                                                   │ Code Change│ │ State Change │ │ Pathname Change │
-                                                   ├────────────┤ ├──────────────┤ ├─────────────────┤
-                                                   │ Vite HMR   │ │ New vDOM     │ │ Load new module │
-                                                   │ Transpiles │ │ Diff & patch │ │ Transpile/cache │
-                                                   │ Hot Reload │ │ UI updates   │ │ New vDOM → UI   │
-                                                   └────────────┘ └──────────────┘ └─────────────────┘
+                                                      ┌────────────────────────┐
+                                                      │ Project Initialization │
+                                                      └────────────┬───────────┘
+                                                                   ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Vite Dev Server starts (localhost:port)     │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Browser requests index.html                 │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ index.html served                           │
+                                            │ - contains <div id="root"></div>            │
+                                            │ - contains <script type="module"            |
+                                            |    src="/src/main.tsx"></script>            │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Browser creates empty real DOM root element │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Browser requests main.tsx module            │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Vite transpiles main.tsx (using esbuild)    │
+                                            │ Sends JS module to browser                  │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Browser caches main.tsx module              │
+                                            │ Browser sees App.tsx import in main.tsx     │
+                                            │ Browser requests App.tsx module             │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Vite transpiles App.tsx                     │
+                                            │ Sends JS module to browser                  │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ App.tsx imports multiple modules            │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌────────────────────────────────────────────────────────────────────┐
+                                            │ If code splitting is NOT used:                                     │
+                                            │ - Browser requests all imported modules in parallel                │
+                                            │ - Vite transpiles modules concurrently                             │
+                                            │ - Modules served as soon as transpilation completes                │
+                                            └────────────────────────────────────────────────────────────────────┘
+                                            ┌────┴────────────────────────────────────────────────────────────────┐
+                                            │ If code splitting IS used:                                          │
+                                            │ - Browser requests only route-relevant modules                      │
+                                            │ - Vite transpiles & serves only requested modules                   │
+                                            └────────────────────────────────────────────────────────────────────-┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Vite caches transpiled modules              │
+                                            │ Unused modules (due to route mismatch)      |
+                                            | cached                                      │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Browser loads JS modules                    │
+                                            │ ReactDOM.createRoot().render(<App />)       │
+                                            │ React builds first virtual DOM (vDOM) based │
+                                            │ on current route                            │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ First vDOM converted to real DOM (no prior  │
+                                            │ vDOM to diff)                               │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌─────────────────────────────────────────────┐
+                                            │ Initial UI rendered in browser              │
+                                            └────────────┬────────────────────────────────┘
+                                                         ↓
+                                            ┌───────────────-┬───────────────────┬───────────────────────┐
+                                            │ Code Change    │ State Change      │ Pathname Change       │
+                                            ├───────────────-┼───────────────────┼───────────────────────┤
+                                            │ Vite transpiles│ React creates new │ Old component unmounts│
+                                            │ changed module │ vDOM and diffs it │ Browser requests new  │
+                                            │ and pushes JS  │ against old vDOM  │ route-relevant modules│
+                                            │ to browser via │                   │ (cached or transpiled)│
+                                            │ Hot Module     │ React patches real│ React creates new vDOM│
+                                            │ Replacement    │ DOM efficiently   │ and converts into     │
+                                            │ (HMR) runtime  │                   │ corresponding real DOM│
+                                            │ swaps module in│ React updates UI  │ UI updates accordingly│
+                                            │ cache          │                   │                       │
+                                            └───────────────-┴───────────────────┴───────────────────────┘
 
 ## Expanding the ESLint configuration
 
