@@ -213,6 +213,23 @@ Currently, two official plugins are available:
                                             │ cache          │                   │                       │
                                             └───────────────-┴───────────────────┴───────────────────────┘
 
+## While mapping an array, why use unique prop key?
+
+- Unique prop key acts as a unique identifier to individual item of an array
+- All items of an array are siblings of the same level. So, to let the DOM recognize them as an unique element, an unique identifier(prop key), is assigned to them.
+- They should be identified uniquely to avoid mis-manipulation of unwanted node or item. VDOM should consider each node as unique element to let it recognize a particular element.
+
+## Why id associated with an item is recommended instead of the indices of the array as prop key?
+
+- Indices of an array always maintain order. #If any random item is removed, just the item is removed but the index associated with that element is not removed. #Only length of the array changes
+- If index of the array is used as a unique prop key:
+  - Index associated to a particular item won't be its permanent key.
+  - If that item is removed, the index associated with it will get associated to another one present after it. The result after this:
+    - React whatsoever finds the key no matter the changed position of item.
+    - During reconciliation, react only considers the key and does not diff the previously existed keys' values no matter the difference in the items associated.
+    - This results in bug and unwanted UI # Already removed items are also seen due to the persistence of keys associated to the removed item.
+- Thus, it is recommended to use unique id or other unique valued key as prop key when mapping an array and avoid the indices as key to avoid encountering bugs and mis-manipulation.
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:

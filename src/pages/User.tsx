@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUsersRequest, userSelector } from "../features/user/userSlice";
 import { fetchPostRequest, postSelector } from "../features/post/postSlice";
 import { alertSelector, fetchAlertRequest } from "../features/alert/alertSlice";
+import DragableCard from "../components/Card/DragableCard";
+import CardContent from "../components/Card/CardContent";
 
 export default function User() {
   const dispatch = useDispatch();
@@ -37,11 +39,16 @@ export default function User() {
         {typeof value === "object" && value !== null ? (
           <div className="ml-4">{renderData(value)}</div>
         ) : (
-          <span>{value.toString()}</span>
+          <span>{value?.toString()}</span>
         )}
       </div>
     ));
   };
-
-  return <div>{renderData(userData)}</div>;
+  const DraggablePopup = DragableCard(CardContent, 300, 150, true, true);
+  return (
+    <div>
+      {renderData(userData)}
+      <DraggablePopup />
+    </div>
+  );
 }
